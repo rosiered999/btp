@@ -6,38 +6,28 @@ from matplotlib import *
 from pylab import *
 import py_stringmatching
 
-def image_similarity(A, B, alpha, beta):
-    # https://stackoverflow.com/questions/43719451/python-convert-image-to-a-string-of-pixel-values
-    # variant 4 ^^^^
-    #result = cv2.matchTemplate(A, B, cv2.TM_CCORR_NORMED)
-    #since i wanted to do tversky similarity and there is already a fn for that
-    #i am converting the image to string
-    str_repA = str(A.flatten().tolist())
-    img_strA = str_repA.strip('[]').replace(',','')
+def image_similarity(A, B):
+    result = cv2.matchTemplate(A, B, cv2.TM_CCORR_NORMED)
 
-    str_repB = str(A.flatten().tolist())
-    img_strB = str_repB.strip('[]').replace(',','')
-    #print A
-    #what if i use number of black pixels in bitwise union, intersection, sub
-    #print result'''
-    if not isinstance(img_strA, set):
-        img_strA = set(img_strA)
-    if not isinstance(img_strB, set):
-        img_strB = set(img_strB)
-    print img_strA, img_strB
-    intersection = float(len(img_strA & img_strB))
-    return 1.0 * intersection / (intersection + (alpha * len(img_strA - img_strB)) + (beta * len(img_strB - img_strA)))
-
+def transform(index, img):
+    '''2*2 identity mirror flip r90 r180 r270'''
+    '''3*3 union intersection xor'''
+    if ind==0:
+        return img
+    elif ind==1:
+        horizontal_img = img.copy()
+        horizontal_img = cv2.flip( img, 0 )
+        return horizontal_img
+    elif ind==2:
 
 
 def find_answer(question_images):
     for i in question_images:
         for j in question_images:
-            if i[0]!=j[0]:
-                print i[0],j[0],image_similarity(i[1],j[1],0,0)
-                print i[0],j[0],image_similarity(i[1],j[1],1,0)
-                print i[0],j[0],image_similarity(i[1],j[1],0,1)
-                print i[0],j[0],image_similarity(i[1],j[1],1,1)
+            for ind in range(0,6):
+                j[1] = transform(ind, j[1])
+                if i[0]!=j[0]:
+                    print i[0],j[0],image_similarity(i[1],j[1])
 
 
 
