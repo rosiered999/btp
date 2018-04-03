@@ -2,6 +2,8 @@ import cv2
 import os, os.path
 import sys
 import numpy
+from PIL import Image
+import scipy.misc
 import matplotlib.pyplot as plt
 from pylab import *
 import py_stringmatching
@@ -51,6 +53,19 @@ def transform(ind, img):
     elif ind==5:
         return ndimage.rotate(img,270)
 
+def check_answer_options(ans_img, options_images):
+    probs = []
+    for i in options_images:
+        img = i[1]
+        confidence = image_similarity(img,ans_img,0,0)
+        probs.append(confidence)
+    mx = max(probs)
+    ind = probs.index(mx)
+    fin_ans = options_images[ind][1]
+    #scipy.misc.imshow(fin_ans)
+    return fin_ans
+
+
 def find_answer(question_images):
     affine_trans_list = []
     visited = [0]*6
@@ -77,6 +92,13 @@ def find_answer(question_images):
     pprint(affine)
     pprint(max_tuple_affine)
     #print max_tuple_affine[0]
+    for sublist in question_images:
+        if sublist[0]=='A':
+            A = sublist[1]
+        elif sublist[0]=='B':
+            B = sublist[1]
+        elif sublist[0]=='C':
+            C = sublist[1]
     #print "question_images", question_images
     if(max_tuple_affine[0]=='A' and max_tuple_affine[1]=='B'):
         #do dsomething with C
@@ -87,8 +109,17 @@ def find_answer(question_images):
                 key = sublist
                 break
         ans_pre_img = transform(max_tuple_affine[2],key[1])
-        plt.imshow(ans_pre_img,cmap="Greys")
-        plt.show()
+        if max_tuple_affine[3] =='11':
+            #do this X = 0
+            ans_img = ans_pre_img
+        elif max_tuple_affine[3]=='10':
+            #do this X = B-A
+            X = cv2.subtract(B,A)
+            ans_img = cv2.add(ans_pre_img,X)
+        else:
+            #do this X = A-B
+            X = cv2.subtract(A,B)
+            ans_img = cv2.subtract(ans_pre_img,X)
     elif(max_tuple_affine[0]=='A' and max_tuple_affine[1]=='C'):
         #do something with B
         search = 'B'
@@ -98,8 +129,21 @@ def find_answer(question_images):
                 break
         print "key", key
         ans_pre_img = transform(max_tuple_affine[2],key[1])
-        plt.imshow(ans_pre_img,cmap="Greys_r")
-        plt.show()
+
+        if max_tuple_affine[3] =='11':
+            #do this X = 0
+            ans_img = ans_pre_img
+        elif max_tuple_affine[3]=='10':
+            #do this X = B-A
+            X = cv2.subtract(C,A)
+            ans_img = cv2.add(ans_pre_img,X)
+        else:
+            #do this X = A-B
+            X = cv2.subtract(A,C)
+            ans_img = cv2.subtract(ans_pre_img,X)
+    #img = Image.fromarray(ans_img, 'RGB')
+    #scipy.misc.imshow(ans_img)
+    return ans_img
 
 if __name__=='__main__':
     imageDir = sys.argv[1] #specify your path here
@@ -136,7 +180,9 @@ if __name__=='__main__':
     options_images.sort(key=lambda x: x[0])
     question_images.sort(key=lambda x: x[0])
 
-    find_answer(question_images)
+    img = find_answer(question_images)
+    ans_img = check_answer_options(img, options_images)
+    scipy.misc.imshow(ans_img)
 
     cv2.destroyAllWindows()
     #height, width, channels = question_images[1][1].shape
