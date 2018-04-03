@@ -75,10 +75,31 @@ def find_answer(question_images):
     affine = [x for x in affine_trans_list if x!=[]]
     max_tuple_affine = max(affine,key=itemgetter(4))
     pprint(affine)
-    print max_tuple_affine
-
-
-
+    pprint(max_tuple_affine)
+    #print max_tuple_affine[0]
+    #print "question_images", question_images
+    if(max_tuple_affine[0]=='A' and max_tuple_affine[1]=='B'):
+        #do dsomething with C
+        search = 'C'
+        for sublist in question_images:
+            if sublist[0] == search:
+                print sublist
+                key = sublist
+                break
+        ans_pre_img = transform(max_tuple_affine[2],key[1])
+        plt.imshow(ans_pre_img,cmap="Greys")
+        plt.show()
+    elif(max_tuple_affine[0]=='A' and max_tuple_affine[1]=='C'):
+        #do something with B
+        search = 'B'
+        for sublist in question_images:
+            if sublist[0] == search:
+                key = sublist
+                break
+        print "key", key
+        ans_pre_img = transform(max_tuple_affine[2],key[1])
+        plt.imshow(ans_pre_img,cmap="Greys_r")
+        plt.show()
 
 if __name__=='__main__':
     imageDir = sys.argv[1] #specify your path here
