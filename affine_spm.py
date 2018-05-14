@@ -100,7 +100,7 @@ def find_answer(question_images):
                 img = i[1]
                 if(i[0]!=j[0]):
                     for ind in range(0,6):
-                        print ind
+                        #print ind
                         img_to_trans = transform(ind, j[1])
                         visited[ord(i[0])-65]=1
                         visited[ord(j[0])-65]=1
@@ -156,7 +156,7 @@ def find_answer(question_images):
             ans_pre_img = transform(max_tuple_affine[2],key[1])
             ans_pre_img = cv2.resize(ans_pre_img, (60,60),interpolation=cv2.INTER_AREA)
             scipy.misc.imshow(ans_pre_img)
-            if max_tuple_affine[3] =='11':
+            '''if max_tuple_affine[3] =='11':
                 #do this X = 0
                 ans_img = ans_pre_img
             elif max_tuple_affine[3]=='10':
@@ -168,7 +168,7 @@ def find_answer(question_images):
                 #do this X = A-B
                 X = cv2.subtract(A,B)
                 X = cv2.resize(X, (60,60),interpolation=cv2.INTER_AREA)
-                ans_img = cv2.subtract(ans_pre_img,X)
+                ans_img = cv2.subtract(ans_pre_img,X)'''
             ans_img = ans_pre_img
         elif(max_tuple_affine[0]=='A' and max_tuple_affine[1]=='C'):
             search = 'B'
@@ -179,9 +179,9 @@ def find_answer(question_images):
             #print "key", key
             ans_pre_img = transform(max_tuple_affine[2],key[1])
             ans_pre_img = cv2.resize(ans_pre_img, (60,60),interpolation=cv2.INTER_AREA)
-            scipy.misc.imshow(ans_pre_img)
+            #scipy.misc.imshow(ans_pre_img)
             ans_img = ans_pre_img
-            if max_tuple_affine[3] =='11':
+            '''if max_tuple_affine[3] =='11':
                 #do this X = 0
                 ans_img = ans_pre_img
             elif max_tuple_affine[3]=='10':
@@ -191,7 +191,7 @@ def find_answer(question_images):
             else:
                 #do this X = A-B
                 X = cv2.subtract(A,C)
-                ans_img = cv2.subtract(ans_pre_img,X)
+                ans_img = cv2.subtract(ans_pre_img,X)'''
     else:
         print "AFFINE"
         #pprint(affine)
@@ -200,7 +200,7 @@ def find_answer(question_images):
         maxes = []
         for i in affine:
             #print i[4]-max_tuple_affine[4]
-            if abs(i[4]- max_tuple_affine[4])<=0.001:
+            if abs(i[4]- max_tuple_affine[4])<=0.05:
                 maxes.append(i)
         print "MAXES"
         pprint(maxes)
@@ -225,7 +225,7 @@ def find_answer(question_images):
                 z.remove(y)
                 print 'z',z
                 search = z[0]
-        '''while flag==0:
+        while flag==0:
             x = maxes[inn][0]
             y = maxes[inn][1]
             for i in list_letters:
@@ -235,7 +235,7 @@ def find_answer(question_images):
                     z.remove(x)
                     z.remove(y)
                     print 'z',z
-                    search = z[0]'''
+                    search = z[0]
         #print x,y,search
         for sublist in question_images:
             if sublist[0] == search:
@@ -292,8 +292,10 @@ if __name__=='__main__':
     question_images.sort(key=lambda x: x[0])
 
     img = find_answer(question_images)
+    #if len(question_images)>3:
     ans_option, ans_img = check_answer_options(img, options_images)
     print ans_option+1
-    scipy.misc.imshow(ans_img)
+    img = ans_img
+    scipy.misc.imshow(img)
 
     cv2.destroyAllWindows()
